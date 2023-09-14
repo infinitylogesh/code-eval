@@ -4,7 +4,7 @@ from transformers import (
     PreTrainedTokenizer,
     PreTrainedModel,
 )
-from core import run_eval, filter_code, fix_indents
+from core import run_eval, filter_code, fix_indents,pangu_prompt
 import os
 import torch
 from typing import List
@@ -18,6 +18,7 @@ TOKEN = os.environ['HF_TOKEN']
 def generate_batch_completion(
     model: PreTrainedModel, tokenizer: PreTrainedTokenizer, prompt: str, batch_size: int
 ) -> List[str]:
+    prompt_input = pangu_prompt(prompt)
     input_batch = [prompt for _ in range(batch_size)]
     inputs = tokenizer(input_batch, return_tensors="pt").to(model.device)
     input_ids_cutoff = inputs.input_ids.size(dim=1)
@@ -25,7 +26,7 @@ def generate_batch_completion(
     generated_ids = model.generate(
         **inputs,
         use_cache=True,
-        max_new_tokens=512,
+        max_new_tokens=2048,
         temperature=0.2,
         top_p=0.95,
         do_sample=True,
@@ -44,23 +45,20 @@ def generate_batch_completion(
 
 if __name__ == "__main__":
     # adjust for n = 10 etc
-    num_samples_per_task = 50
-    function_completion_task = False
+    num_samples_per_task = 10
     
-    out_path = "results/starcoder7b_codecomp/eval_starcoder7B_80k_code_extracted.jsonl"
-    os.makedirs("results/starcoder7b_codecomp", exist_ok=True)
+    out_path = "results/starcoder3b_student/eval_pangu_prompt.jsonl"
+    os.makedirs("results/starcoder3b_student", exist_ok=True)
 
     tokenizer = AutoTokenizer.from_pretrained(
-        "bigcode/starcoderbase-7b",
+        "bigcode/starcoderbase-3b",
         #"/home/ubuntu/pangu_coder2/train/outputs/starcoder3b_high_teacher/",
         trust_remote_code=True,
         use_auth_token=TOKEN,
     )
 
     model = GPTBigCodeForCausalLM.from_pretrained(
-            #"bigcode/starcoderbase-7b",
-            #"/home/ubuntu/pangu_coder2/outputs/code_completion/starcoder7B_v2/merged_weights/",
-            "/home/ubuntu/pangu_coder2/outputs/code_completion/starcoder7B_80k_code_extracted/merged_weights",
+            "/home/ubuntu/pangu_coder2/train/outputs/starcoder3b_high_teacher/",
             device_map="auto",
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
@@ -78,5 +76,4 @@ if __name__ == "__main__":
         out_path,
         generate_batch_completion,
         True,
-        function_completion_task,
     )

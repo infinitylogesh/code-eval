@@ -1,6 +1,6 @@
 from transformers import (
     AutoTokenizer,
-    GPTBigCodeForCausalLM,
+    AutoModelForCausalLM,
     PreTrainedTokenizer,
     PreTrainedModel,
 )
@@ -21,9 +21,10 @@ def generate_batch_completion(
     input_batch = [prompt for _ in range(batch_size)]
     inputs = tokenizer(input_batch, return_tensors="pt").to(model.device)
     input_ids_cutoff = inputs.input_ids.size(dim=1)
+    print(inputs.keys())
 
     generated_ids = model.generate(
-        **inputs,
+        inputs['input_ids'],
         use_cache=True,
         max_new_tokens=512,
         temperature=0.2,
@@ -45,23 +46,20 @@ def generate_batch_completion(
 if __name__ == "__main__":
     # adjust for n = 10 etc
     num_samples_per_task = 50
-    function_completion_task = False
     
-    out_path = "results/starcoder7b_codecomp/eval_starcoder7B_80k_code_extracted.jsonl"
-    os.makedirs("results/starcoder7b_codecomp", exist_ok=True)
+    out_path = "results/phi_1_5/eval.jsonl"
+    os.makedirs("results/phi_1_5", exist_ok=True)
 
     tokenizer = AutoTokenizer.from_pretrained(
-        "bigcode/starcoderbase-7b",
+        "microsoft/phi-1_5",
         #"/home/ubuntu/pangu_coder2/train/outputs/starcoder3b_high_teacher/",
         trust_remote_code=True,
         use_auth_token=TOKEN,
     )
 
-    model = GPTBigCodeForCausalLM.from_pretrained(
-            #"bigcode/starcoderbase-7b",
-            #"/home/ubuntu/pangu_coder2/outputs/code_completion/starcoder7B_v2/merged_weights/",
-            "/home/ubuntu/pangu_coder2/outputs/code_completion/starcoder7B_80k_code_extracted/merged_weights",
-            device_map="auto",
+    model = AutoModelForCausalLM.from_pretrained(
+            "microsoft/phi-1_5",
+            #device_map="auto",
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
             #max_memory={
@@ -70,6 +68,8 @@ if __name__ == "__main__":
             #},
             use_auth_token=TOKEN,
         ).eval()
+    
+    model.to(torch.device("cuda"))
 
     run_eval(
         model,
@@ -78,5 +78,4 @@ if __name__ == "__main__":
         out_path,
         generate_batch_completion,
         True,
-        function_completion_task,
     )

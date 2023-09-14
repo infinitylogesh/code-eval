@@ -1,4 +1,4 @@
-from human_eval.data import write_jsonl, read_problems
+from human_eval.data import write_jsonl, read_problems,FUNC_HUMAN_EVAL
 from transformers import (
     PreTrainedModel,
     PreTrainedTokenizer,
@@ -6,9 +6,10 @@ from transformers import (
 from tqdm import tqdm
 import itertools
 import typing
+from typing import List
 
 BatchGenerator = typing.Callable[
-    [PreTrainedModel, PreTrainedTokenizer, str, int], list[str]
+    [PreTrainedModel, PreTrainedTokenizer, str, int], List[str]
 ]
 
 
@@ -23,7 +24,7 @@ def fix_indents(text: str) -> str:
     return text.replace("\t", "    ")
 
 
-def split_batch(samples: list[str], size=4):
+def split_batch(samples: List[str], size=4):
     mini_batches = []
 
     for i in range(0, len(samples), size):
@@ -39,17 +40,23 @@ def run_eval(
     out_path: str,
     generate_batch_completion: BatchGenerator,
     format_tabs: bool = False,
+    func_completion:bool = False,
 ):
-    problems = read_problems()
+    if func_completion:
+        problems = read_problems(FUNC_HUMAN_EVAL)
+        PROMPT_KEY = "prefix"
+    else:
+        problems = read_problems()
+        PROMPT_KEY = "prompt"
     # problems = dict(itertools.islice(problems.items(), 20))
     samples = []
     pbar = tqdm(total=len(problems) * num_samples_per_task)
 
     for task_id in problems:
         if format_tabs:
-            prompt = problems[task_id]["prompt"].replace("    ", "\t")
+            prompt = problems[task_id][PROMPT_KEY].replace("    ", "\t")
         else:
-            prompt = problems[task_id]["prompt"]
+            prompt = problems[task_id][PROMPT_KEY]
 
         batch_completions = generate_batch_completion(
             model, tokenizer, prompt, num_samples_per_task
