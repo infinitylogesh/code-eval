@@ -35,12 +35,15 @@ def check_correctness(problem: Dict, completion: str, timeout: float,
             reliability_guard()
 
             # Construct the check program and run it.
-            print(completion)
+            
             check_program = (
                 problem["prompt"] + completion + "\n" +
                 problem["test"] + "\n" +
                 f"check({problem['entry_point']})"
             )
+            print("-"*10)
+            print(check_program)
+            print("-"*10)
             
             try:
                 exec_globals = {}

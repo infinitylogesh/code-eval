@@ -15,3 +15,10 @@ def replit_glaive_prompt(prompt: str) -> str:
 
 def pangu_prompt(prompt: str) -> str:
     return f"""Below is an instruction that describes a task.\n Write a response that appropriately completes the request.\n\n ### Instruction:\n{prompt}\n\n### Response:"""
+
+def codellama_prompt(prompt:str) -> str:
+    return f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
+### Instruction:
+Create a Python script for this problem:
+{prompt}
+### Response:"""
