@@ -24,7 +24,7 @@ Create a Python script for this problem:
 ### Response:"""
 
 def rlhf_prompt(prompt:str) -> str:
-    return """"Human:Write a python program to complete the following code:\n{prompt}\n\nAssistant:"""
-    
+    return f""""Human:Write a python program to complete the following code:\n{prompt}\n\nAssistant:"""
+
 def glaive_coder_prompt(prompt:str) -> str:
     return f"""<s> [INST] {prompt} [/INST]"""
