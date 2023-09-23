@@ -1,4 +1,4 @@
-from human_eval.data import write_jsonl, read_problems,FUNC_HUMAN_EVAL
+from human_eval.data import write_jsonl, read_problems
 from transformers import (
     PreTrainedModel,
     PreTrainedTokenizer,
@@ -46,7 +46,8 @@ def run_eval(
     multiplier:int=1
 ):
     if func_completion:
-        problems = read_problems(FUNC_HUMAN_EVAL)
+        pass
+        #problems = read_problems(FUNC_HUMAN_EVAL)
     else:
         problems = read_problems()
     # problems = dict(itertools.islice(problems.items(), 20))
