@@ -11,7 +11,7 @@ import tempfile
 
 
 def check_correctness(problem: Dict, completion: str, timeout: float,
-                      completion_id: Optional[int] = None) -> Dict:
+                      completion_id: Optional[int] = None,full_formed_solution=False) -> Dict:
     """
     Evaluates the functional correctness of a completion by running the test
     suite provided in the problem. 
@@ -36,6 +36,9 @@ def check_correctness(problem: Dict, completion: str, timeout: float,
 
             # Construct the check program and run it.
             
+            if full_formed_solution:
+                problem['prompt'] = ''
+
             check_program = (
                 problem["prompt"] + completion + "\n" +
                 problem["test"] + "\n" +
