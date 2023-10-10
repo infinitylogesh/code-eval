@@ -43,7 +43,8 @@ def run_eval(
     generate_batch_completion: BatchGenerator,
     format_tabs: bool = False,
     func_completion:bool = False,
-    multiplier:int=1
+    multiplier:int=1,
+    generation_kwargs={},
 ):
     if func_completion:
         pass
@@ -62,16 +63,28 @@ def run_eval(
                 prompt = problems[task_id]["prompt"]
 
             batch_completions = generate_batch_completion(
-                model, tokenizer, prompt, num_samples_per_task
+                model, tokenizer, prompt, num_samples_per_task,**generation_kwargs
             )
 
-            for sample in batch_completions:
-                result = dict(
-                    task_id=task_id,
-                    completion=sample,
-                )
+            #import pdb;pdb.set_trace()
 
-                samples += [result]
+            if isinstance(batch_completions[0],str):
+                for sample in batch_completions:
+                    result = dict(
+                        task_id=task_id,
+                        completion=sample,
+                    )
+
+                    samples += [result]
+            else:
+                for org_sample,sample in batch_completions:
+                    result = dict(
+                        task_id=task_id,
+                        completion=sample,
+                        org_sample=org_sample
+                    )
+
+                    samples += [result]
 
             pbar.update(num_samples_per_task)
 

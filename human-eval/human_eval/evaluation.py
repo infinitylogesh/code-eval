@@ -44,6 +44,7 @@ def evaluate_functional_correctness(
     n_workers: int = 4,
     timeout: float = 3.0,
     problem_file: str = HUMAN_EVAL,
+    full_formed_solution=False
 ):
     """
     Evaluates the functional correctness of generated samples, and writes
@@ -63,12 +64,12 @@ def evaluate_functional_correctness(
         for sample in tqdm.tqdm(stream_jsonl(sample_file)):
             task_id = sample["task_id"]
             completion = sample["completion"]
-            args = (problems[task_id], completion, timeout, completion_id[task_id])
+            args = (problems[task_id], completion, timeout, completion_id[task_id],full_formed_solution)
             future = executor.submit(check_correctness, *args)
             futures.append(future)
             completion_id[task_id] += 1
             n_samples += 1
-
+        #import pdb;pdb.set_trace()
         assert len(completion_id) == len(problems), "Some problems are not attempted."
 
         print("Running test suites...")

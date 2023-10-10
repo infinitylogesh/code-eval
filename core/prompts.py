@@ -27,4 +27,7 @@ def rlhf_prompt(prompt:str) -> str:
     return f""""Human:Write a python program to complete the following code:\n{prompt}\n\nAssistant:"""
 
 def glaive_coder_prompt(prompt:str) -> str:
-    return f"""<s> [INST] {prompt} [/INST]"""
+    return f"<s> [INST] Write a python program to complete the following code:\n{prompt} [/INST]```python\n{prompt}"
+
+def codeaplaca_prompt(prompt:str) -> str:
+    return f"### Instruction:\nWrite a python program to complete the below:{prompt}\n\n### Response:```python"
