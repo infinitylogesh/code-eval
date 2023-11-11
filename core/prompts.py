@@ -31,3 +31,7 @@ def glaive_coder_prompt(prompt:str) -> str:
 
 def codeaplaca_prompt(prompt:str) -> str:
     return f"### Instruction:\nWrite a python program to complete the below:{prompt}\n\n### Response:```python"
+
+def completion_prompt(prompt:str) -> str:
+    return f"```python\n{prompt}"
+
